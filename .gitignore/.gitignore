@@ -1,0 +1,169 @@
+package com.example.sowmyarasiga.lassierproject;
+
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.BaseBundle;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.Spinner;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.example.sowmyarasiga.lassierproject.DatabaseHelper.TABLE_NAME;
+
+public class ListviewActivity extends AppCompatActivity {
+    ListView listView;
+    EditText N, F, T,Ft,Tt, Re, No, Tk;
+    Spinner spinner;
+    SQLiteDatabase SQLiteDatabase;
+    Cursor cursor;
+    SQLiteListAdapter ListAdapter ;
+
+    ArrayList<String> NAME = new ArrayList<String>();
+    ArrayList<String> DEPARTMENT = new ArrayList<String>();
+    ArrayList<String>  FROM= new ArrayList<String>();
+    ArrayList<String> TO = new ArrayList<String>();
+    ArrayList<String> FROMT = new ArrayList<String>();
+    ArrayList<String>  TOT= new ArrayList<String>();
+    ArrayList<String> REASON = new ArrayList<String>();
+    ArrayList<String> ND = new ArrayList<String>();
+    ArrayList<String> AT = new ArrayList<String>();
+
+
+    DatabaseHelper myDb;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_listview);
+
+
+
+       /* CustomAdapter customAdapter = new CustomAdapter(this);
+        listView.setAdapter(customAdapter);*/
+        N = (EditText) findViewById(R.id.name);
+        spinner = (Spinner) findViewById(R.id.department);
+        F = (EditText) findViewById(R.id.tfrom);
+        T = (EditText) findViewById(R.id.tto);
+        Ft = (EditText) findViewById(R.id.ftime);
+        Tt = (EditText) findViewById(R.id.ttime);
+        Re = (EditText) findViewById(R.id.reason);
+        No = (EditText) findViewById(R.id.nday);
+        Tk = (EditText) findViewById(R.id.taken);
+         /*name=N.getText().toString();
+        spi=spinner.getSelectedItem().toString();
+        from=F.getText().toString();
+        to=T.getText().toString();
+        ftime=Ft.getText().toString();
+        ttime= Tt.getText().toString();
+        re=Re.getText().toString();
+        no=No.getText().toString();
+        ta=Tk.getText().toString(); */
+
+        myDb = new DatabaseHelper(this);
+        listView = findViewById(R.id.list);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,
+                                    long id) {
+
+                Intent intent = new Intent(ListviewActivity.this, ListActivity.class);
+                //Create a bundle object
+                Bundle b = new Bundle();
+
+                //Inserts a String value into the mapping of this Bundle
+                b.putString("Name", N.getText().toString());
+                b.putString("Department", spinner.getSelectedItem().toString());
+                b.putString("From", F.getText().toString());
+                b.putString("To", T.getText().toString());
+                b.putString("From Time", Ft.getText().toString());
+                b.putString("To Time", Tt.getText().toString());
+                b.putString("Reason", Re.getText().toString());
+                b.putString("Number of days", No.getText().toString());
+                b.putString("Taken", Tk.getText().toString());
+
+
+                //Add the bundle to the intent.
+                intent.putExtras(b);
+
+                //start the DisplayActivity
+                startActivity(intent);
+            }
+
+        });
+    }
+
+    @Override
+    protected void onResume() {
+
+        ShowSQLiteDBdata() ;
+
+        super.onResume();
+    }
+
+    private void ShowSQLiteDBdata() {
+        SQLiteDatabase = myDb.getWritableDatabase();
+        cursor = SQLiteDatabase.rawQuery("select * from "+TABLE_NAME+ " order by NAME DESC;",null);
+        NAME.clear();
+        DEPARTMENT.clear();
+        FROM.clear();
+        TO.clear();
+        FROMT.clear();
+        TOT.clear();
+        REASON.clear();
+        ND.clear();
+        AT.clear();
+        if (cursor.moveToFirst()) {
+            do {
+                NAME.add(cursor.getString(cursor.getColumnIndex(myDb.COL_1)));
+                DEPARTMENT.add(cursor.getString(cursor.getColumnIndex(myDb.COL_2)));
+                FROM.add(cursor.getString(cursor.getColumnIndex(myDb.COL_3)));
+                TO.add(cursor.getString(cursor.getColumnIndex(myDb.COL_4)));
+                FROMT.add(cursor.getString(cursor.getColumnIndex(myDb.COL_5)));
+                TOT.add(cursor.getString(cursor.getColumnIndex(myDb.COL_6)));
+                REASON.add(cursor.getString(cursor.getColumnIndex(myDb.COL_7)));
+                ND.add(cursor.getString(cursor.getColumnIndex(myDb.COL_8)));
+                AT.add(cursor.getString(cursor.getColumnIndex(myDb.COL_9)));
+            } while (cursor.moveToNext());
+        }
+        ListAdapter = new SQLiteListAdapter(ListviewActivity.this,
+
+                NAME,
+                DEPARTMENT,
+                FROM,
+                TO,
+                FROMT,
+                TOT,
+                REASON,
+                ND,
+                AT);
+
+        listView.setAdapter(ListAdapter);
+
+
+
+
+
+
+        cursor.close();
+    }
+
+
+
+    }
+
+
+
